@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  backend:
+    container_name: task_backend_006
+    build: ./Backend
+    ports:
+      - "3056:3056"
+    depends_on:
+      - postgres
+    environment:
+      - PGUSER=postgres
+      - PGPASSWORD=admin123
+      - PGHOST=postgres
+      - PGDATABASE=hr_task_management
+      - PGPORT=5432
+    networks:
+      - task_net_006
+
+  frontend:
+    container_name: task_frontend_006
+    build: ./Frontend
+    ports:
+      - "8092:80"
+    depends_on:
+      - backend
+    networks:
+      - task_net_006
+
+  hr:
+    container_name: task_hr_006
+    build: ./HR
+    ports:
+      - "8093:80"
+    depends_on:
+      - backend
+    networks:
+      - task_net_006
+
+  postgres:
+    container_name: task_postgres_006
+    image: postgres:13
+    ports:
+      - "5456:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=admin123
+      - POSTGRES_DB=hr_task_management
+    volumes:
+      - pgdata_006:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - task_net_006
+
+volumes:
+  pgdata_006:
+
+networks:
+  task_net_006:
+    driver: bridge
+
